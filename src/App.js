@@ -25,7 +25,7 @@ const particleOptions = {
 }
 
 const app = new Clarifai.App({
-  apiKey: process.env.CLARIFAI_KEY
+  apiKey: 'd016cbcb686f4a15a25fc358c175c85a' 
 });
 
 const initialValues = {
