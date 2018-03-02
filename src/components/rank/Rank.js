@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Rank = ({ name, entries, route }) => {
-    if (route === 'explore') {
+    if (route === 'demo') {
         return (
             <div>
                 <div className='white f3'>

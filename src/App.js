@@ -38,6 +38,7 @@ const initialValues = {
     box: [],
     route: 'signin',
     isSignedIn: false,
+    isDemo: false,
     user: {
       'id': '',
       'name': '',
@@ -123,6 +124,8 @@ class App extends Component {
       route = 'signin'
     } else if (route === 'home'){
       this.setState({isSignedIn: true})
+    } else if (route === 'demo'){
+      this.setState({isDemo: !this.state.isDemo})
     }
     this.setState({route: route});
   }
@@ -143,7 +146,10 @@ class App extends Component {
     return (
       <div className="App">
         <Particles className='particles' params={particleOptions}/>
-        <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} route={this.state.route}/>
+        <Navigation isSignedIn={isSignedIn} 
+        onRouteChange={this.onRouteChange} 
+        route={this.state.route}
+        isDemo={this.state.isDemo}/>
         {/* <Logo/> */}
         {(route === 'signin') ? (
           <Signin onRouteChange={this.onRouteChange} loadUser={this.loadUser}/>
