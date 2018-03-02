@@ -1,8 +1,23 @@
+.dropzone {
+    border: 2px dashed #0087F7;
+    border-radius: 5px;
+    background: white;
+    padding: 54px 54px;
+}
+
+.form-text {
+    color: #646C7F;
+    font-weight: bold;
+}
+
 .bounding-box {
     position: absolute;
-    box-shadow: 0 0 0 3px #149df2 inset;
+    /* box-shadow: 0 0 0 3px #8EBC29 inset; */
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     cursor: pointer;
+    background-image: url('emoji.png');
+    background-size: cover;
+    background-repeat: no-repeat;
 }

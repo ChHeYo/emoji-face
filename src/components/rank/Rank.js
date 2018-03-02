@@ -1,16 +1,23 @@
 import React from 'react';
 
-const Rank = ({ name, entries }) => {
-    return (
-        <div>
-            <div className='white f3'>
-                { `${name}, your current rank is...`}
+const Rank = ({ name, entries, route }) => {
+    if (route === 'explore') {
+        return (
+            <div>
+                <div className='white f3'>
+                    { "Demo Mode" }
+                </div>
             </div>
-            <div className='white f1'>
-                { entries }
+        );
+    } else {
+        return (
+            <div>
+                <div className='white f3'>
+                    { `${name}, you have uploaded ${entries} images so far.`}
+                </div>
             </div>
-        </div>
-    );
+        );
+    }
 }
 
 export default Rank;

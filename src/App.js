@@ -9,6 +9,7 @@ import Register from './components/register/Register';
 
 import Clarifai from 'clarifai';
 import Particles from 'react-particles-js';
+import request from 'superagent';
 
 import './App.css';
 
@@ -25,13 +26,16 @@ const particleOptions = {
 }
 
 const app = new Clarifai.App({
-  apiKey: 'd016cbcb686f4a15a25fc358c175c85a' 
+  apiKey: 'd016cbcb686f4a15a25fc358c175c85a'
 });
+
+const CLOUDINARY_UPLOAD_PRESET = 'pg7zdx0l';
+const CLOUDINARY_UPLOAD_URL = 'https://api.cloudinary.com/v1_1/dmzzngrru/image/upload';
 
 const initialValues = {
     input: '',
     imageUrl: '',
-    box: {},
+    box: [],
     route: 'signin',
     isSignedIn: false,
     user: {
@@ -50,29 +54,50 @@ class App extends Component {
   }
 
   getFaceLocation = (data) => {
-    const { bottom_row, left_col, right_col, top_row } = data.outputs[0].data.regions[0].region_info.bounding_box;
+    const lengthOfApi = data.outputs[0].data.regions.length;
     const image = document.getElementById('inputimage');
     const width = image.width;
     const height = image.height;
-    return {
-      leftCol: left_col * width,
-      topRow: top_row * height,
-      rightCol: width - (right_col * width),
-      bottom_row: height - (bottom_row * height),
+    let faceArray = [];
+    for(let i = 0; i < lengthOfApi; i++){
+      let { bottom_row, left_col, right_col, top_row } = data.outputs[0].data.regions[i].region_info.bounding_box;
+      let box = {
+        leftCol: left_col * width,
+        topRow: top_row * height,
+        rightCol: width - (right_col * width),
+        bottom_row: height - (bottom_row * height),
+      }
+      faceArray.push(box);
     }
+    return faceArray;
   }
 
   displayBox = (facelocation) => {
     this.setState({box: facelocation});
   }
 
-  onInputChange = (event) => {
-    this.setState({input: event.target.value});
+  onInputChange = (file) => {
+    this.setState({box: []})
+    let upload = request.post(CLOUDINARY_UPLOAD_URL)
+                        .field('upload_preset', CLOUDINARY_UPLOAD_PRESET)
+                        .field('file', file);
+
+    upload.end((err, response) => {
+      if (err) {
+        console.error(err);
+      }
+
+      if (response.body.secure_url !== '') {
+        this.setState({
+          imageUrl: response.body.secure_url
+        });
+      }
+    })
   }
 
   onSubmitButton = () => {
-    this.setState({imageUrl: this.state.input})
-    app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
+    this.setState({imageUrl: this.state.imageUrl})
+    app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.imageUrl)
     .then(response => {
       if (response) {
         fetch('https://serene-harbor-62786.herokuapp.com/image', {
@@ -118,7 +143,7 @@ class App extends Component {
     return (
       <div className="App">
         <Particles className='particles' params={particleOptions}/>
-        <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange}/>
+        <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} route={this.state.route}/>
         {/* <Logo/> */}
         {(route === 'signin') ? (
           <Signin onRouteChange={this.onRouteChange} loadUser={this.loadUser}/>
@@ -126,7 +151,7 @@ class App extends Component {
           <Register onRouteChange={this.onRouteChange} loadUser={this.loadUser}/>
         ) : (
         <div>
-            <Rank name={this.state.user.name} entries={this.state.user.entries}/>
+            <Rank name={this.state.user.name} entries={this.state.user.entries} route={this.state.route}/>
             <ImageLinkForm onInputChange={this.onInputChange} onSubmitButton={this.onSubmitButton}/>
             <FaceRecognition imageUrl={imageUrl} displayFace={box}/>
         </div>
